@@ -14,6 +14,21 @@
       "order": 0,
       "tags": [],
       "category": "Work"
+    },
+    {
+      "id": "18ae849c-6774-4db3-a0bd-001b124ba552",
+      "title": "Take a nap",
+      "description": "",
+      "difficulty": "medium",
+      "estimatedMinutes": 30,
+      "deadline": null,
+      "parentId": null,
+      "completed": false,
+      "completedAt": null,
+      "createdAt": "2026-05-02T20:12:14.448Z",
+      "order": 1,
+      "tags": [],
+      "category": "Work"
     }
   ],
   "completionLogs": [],
