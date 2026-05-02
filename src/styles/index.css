@@ -71,3 +71,30 @@ ul,ol { list-style:none; }
 .stat-card { padding:var(--sp-5); border-radius:var(--r-lg); background:var(--bg-surface); border:1px solid var(--border-subtle); }
 .stat-card .stat-value { font-size:var(--fs-2xl); font-weight:700; line-height:1.2; }
 .stat-card .stat-label { font-size:var(--fs-xs); color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-top:var(--sp-1); }
+
+/* ─── Mobile Responsiveness ──────────────────────── */
+@media (max-width: 768px) {
+  #app {
+    flex-direction: column-reverse;
+  }
+  #sidebar {
+    width: 100vw;
+    min-width: 100vw;
+    height: 65px;
+    min-height: 65px;
+    border-right: none;
+    border-top: 1px solid var(--border-subtle);
+    padding: 0;
+    overflow-y: hidden;
+    overflow-x: auto;
+  }
+  #main-content {
+    height: calc(100vh - 65px);
+  }
+  #header {
+    padding: 0 var(--sp-4);
+  }
+  #view-container {
+    padding: var(--sp-4);
+  }
+}

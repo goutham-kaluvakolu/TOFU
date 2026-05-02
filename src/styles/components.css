@@ -121,3 +121,61 @@
 .ai-loading .dots span { animation:blink 1.4s infinite both; }
 .ai-loading .dots span:nth-child(2) { animation-delay:0.2s; }
 .ai-loading .dots span:nth-child(3) { animation-delay:0.4s; }
+
+/* ─── Mobile Responsiveness ──────────────────────── */
+@media (max-width: 768px) {
+  /* Sidebar becomes bottom nav */
+  .sidebar-logo, .sidebar-footer { display: none; }
+  .sidebar-nav {
+    flex-direction: row;
+    padding: 0 var(--sp-2);
+    align-items: center;
+    justify-content: space-around;
+    height: 100%;
+    gap: 0;
+  }
+  .nav-item {
+    flex-direction: column;
+    padding: var(--sp-1) var(--sp-2);
+    gap: 4px;
+    font-size: var(--fs-xs);
+    border-radius: var(--r-sm);
+  }
+  .nav-item .nav-icon { margin: 0; }
+
+  /* Header adjustments */
+  .header-stats, .header-clock { display: none; }
+  
+  /* Inputs */
+  .task-input-row { flex-direction: column; }
+  .task-meta-row { flex-direction: column; }
+  .energy-custom-row { flex-direction: column; }
+  
+  /* Task Card */
+  .task-card {
+    padding: var(--sp-3);
+  }
+  .task-actions {
+    opacity: 1; /* Always show actions on mobile */
+  }
+  .ai-preview-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .ai-preview-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+  .ai-subtask {
+    flex-wrap: wrap;
+  }
+
+  /* Modals */
+  .modal-content {
+    padding: var(--sp-5);
+  }
+  .settings-group input[type="text"],
+  .settings-group input[type="password"] {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+}
