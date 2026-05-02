@@ -90,36 +90,44 @@ export function renderSettings(container) {
     saveBtn.disabled = true;
     saveBtn.textContent = 'Saving...';
     
-    const newGhConfig = {
-      token: ghToken.value.trim(),
-      owner: ghOwner.value.trim(),
-      repo: ghRepo.value.trim(),
-      branch: ghBranch.value.trim() || 'main',
-      path: ghPath.value.trim() || 'flowlist-data.json'
-    };
-    
-    const ghChanged = JSON.stringify(newGhConfig) !== JSON.stringify(ghConfig);
-    if (ghChanged) {
-      saveGitHubConfig(newGhConfig);
-    }
-    
-    const newSettings = {
-      geminiApiKey: apiInput.value.trim(),
-      notificationsEnabled: notifCb.checked,
-      categories: catInput.value.split(',').map(s => s.trim()).filter(Boolean)
-    };
-    
-    await api.updateSettings(newSettings);
-    store.setState({ settings: { ...store.getState().settings, ...newSettings } });
-    
-    saveBtn.disabled = false;
-    saveBtn.textContent = '✓ Saved!';
-    
-    if (ghChanged) {
-      alert('GitHub config updated. The page will reload to sync data.');
-      window.location.reload();
-    } else {
-      setTimeout(() => saveBtn.textContent = '💾 Save Settings', 2000);
+    try {
+      const newGhConfig = {
+        token: ghToken.value.trim(),
+        owner: ghOwner.value.trim(),
+        repo: ghRepo.value.trim(),
+        branch: ghBranch.value.trim() || 'main',
+        path: ghPath.value.trim() || 'flowlist-data.json'
+      };
+      
+      const ghChanged = JSON.stringify(newGhConfig) !== JSON.stringify(ghConfig);
+      if (ghChanged) {
+        saveGitHubConfig(newGhConfig);
+      }
+      
+      const newSettings = {
+        geminiApiKey: apiInput.value.trim(),
+        notificationsEnabled: notifCb.checked,
+        categories: catInput.value.split(',').map(s => s.trim()).filter(Boolean)
+      };
+      
+      await api.updateSettings(newSettings);
+      store.setState({ settings: { ...store.getState().settings, ...newSettings } });
+      
+      saveBtn.disabled = false;
+      saveBtn.textContent = '✓ Saved!';
+      
+      if (ghChanged && newGhConfig.token) {
+        alert('GitHub config updated. The page will reload to sync data.');
+        window.location.reload();
+      } else {
+        setTimeout(() => saveBtn.textContent = '💾 Save Settings', 2000);
+      }
+    } catch (err) {
+      console.error(err);
+      saveBtn.disabled = false;
+      saveBtn.textContent = '❌ Error Saving';
+      setTimeout(() => saveBtn.textContent = '💾 Save Settings', 3000);
+      alert('Failed to save settings. If using GitHub, verify your credentials.');
     }
   });
   wrap.appendChild(saveBtn);

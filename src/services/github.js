@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════
-// GitHub API Storage Adapter
+// GitHub API Storage Adapter (with LocalStorage fallback)
 // ═══════════════════════════════════════════════════
 
 export function getGitHubConfig() {
@@ -26,7 +26,6 @@ const defaultDb = {
   tasks: [],
   completionLogs: [],
   settings: {
-    geminiApiKey: '',
     categories: ['Work', 'Personal', 'Learning', 'Health', 'Finance'],
     notificationsEnabled: true
   }
@@ -35,9 +34,20 @@ const defaultDb = {
 let lastSha = null;
 let localDbCache = null;
 
+function getLocalDb() {
+  const saved = localStorage.getItem('flowlist_local_db');
+  return saved ? JSON.parse(saved) : structuredClone(defaultDb);
+}
+
+function saveLocalDb(db) {
+  localStorage.setItem('flowlist_local_db', JSON.stringify(db));
+  localDbCache = db;
+}
+
 export async function readFromGitHub() {
   if (!isGitHubConfigured()) {
-    return localDbCache || structuredClone(defaultDb);
+    localDbCache = getLocalDb();
+    return localDbCache;
   }
 
   const { token, owner, repo, branch, path } = getGitHubConfig();
@@ -53,12 +63,16 @@ export async function readFromGitHub() {
     });
 
     if (res.status === 404) {
-      // File doesn't exist yet, we will create it on first write
-      localDbCache = structuredClone(defaultDb);
+      localDbCache = getLocalDb();
       return localDbCache;
     }
 
-    if (!res.ok) throw new Error('Failed to read from GitHub');
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      console.warn('Failed to read from GitHub, falling back to local.', errData);
+      localDbCache = getLocalDb();
+      return localDbCache;
+    }
 
     const data = await res.json();
     lastSha = data.sha;
@@ -66,22 +80,25 @@ export async function readFromGitHub() {
     // Decode base64 content
     const content = decodeURIComponent(escape(atob(data.content)));
     localDbCache = JSON.parse(content);
+    
+    // Sync to local fallback
+    localStorage.setItem('flowlist_local_db', JSON.stringify(localDbCache));
     return localDbCache;
   } catch (err) {
-    console.error('GitHub Read Error:', err);
-    throw err;
+    console.warn('GitHub Read Error, using local cache:', err);
+    localDbCache = getLocalDb();
+    return localDbCache;
   }
 }
 
 export async function writeToGitHub(db) {
-  localDbCache = db; // Update cache immediately
+  saveLocalDb(db); // Always save locally first!
 
   if (!isGitHubConfigured()) return;
 
   const { token, owner, repo, branch, path } = getGitHubConfig();
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
 
-  // Encode content to base64
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
 
   try {
@@ -102,15 +119,13 @@ export async function writeToGitHub(db) {
 
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
-      // If conflict (409) or sha mismatch (422), we should ideally re-fetch and merge
-      // But for a personal app, we'll just throw the error for now
       throw new Error(errData.message || 'Failed to write to GitHub');
     }
 
     const data = await res.json();
-    lastSha = data.content.sha; // Update sha for next write
+    lastSha = data.content.sha;
   } catch (err) {
     console.error('GitHub Write Error:', err);
-    throw err;
+    throw err; // Re-throw so caller knows it failed
   }
 }

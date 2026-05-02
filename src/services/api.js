@@ -116,13 +116,26 @@ export const api = {
 
   getSettings: async () => {
     const db = await readFromGitHub();
-    return db.settings || {};
+    const localKey = localStorage.getItem('flowlist_gemini_key') || '';
+    return { ...db.settings, geminiApiKey: localKey };
   },
 
   updateSettings: async (data) => {
     const db = await readFromGitHub();
-    db.settings = { ...db.settings, ...data };
+    
+    // Extract gemini key to save ONLY locally
+    const { geminiApiKey, ...syncedSettings } = data;
+    
+    if (geminiApiKey !== undefined) {
+      localStorage.setItem('flowlist_gemini_key', geminiApiKey);
+    }
+    
+    db.settings = { ...db.settings, ...syncedSettings };
+    // Ensure we never write the key to the DB!
+    delete db.settings.geminiApiKey;
+    
     scheduleSave(db);
-    return db.settings;
+    
+    return { ...db.settings, geminiApiKey: localStorage.getItem('flowlist_gemini_key') || '' };
   }
 };
