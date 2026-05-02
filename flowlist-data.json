@@ -1,0 +1,30 @@
+{
+  "tasks": [
+    {
+      "id": "b984b9a4-5818-4290-8db6-19960e2c93b2",
+      "title": "Go for a walk",
+      "description": "",
+      "difficulty": "medium",
+      "estimatedMinutes": 30,
+      "deadline": null,
+      "parentId": null,
+      "completed": false,
+      "completedAt": null,
+      "createdAt": "2026-05-02T20:08:46.257Z",
+      "order": 0,
+      "tags": [],
+      "category": "Work"
+    }
+  ],
+  "completionLogs": [],
+  "settings": {
+    "categories": [
+      "Work",
+      "Personal",
+      "Learning",
+      "Health",
+      "Finance"
+    ],
+    "notificationsEnabled": true
+  }
+}
